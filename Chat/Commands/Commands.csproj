@@ -41,7 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstracts\IChatCommand.cs" />
+    <Compile Include="Abstracts\IChatCommandHandler.cs" />
+    <Compile Include="Abstracts\IChatCommandsResolver.cs" />
+    <Compile Include="ConnectCommand.cs" />
+    <Compile Include="MessageCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Entities\Entities.csproj">
+      <Project>{B86E792A-CE15-4F3E-914A-710442B5C5A9}</Project>
+      <Name>Entities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

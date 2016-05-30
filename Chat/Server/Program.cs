@@ -10,6 +10,15 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            Console.Title = "Server";
+
+            var server = new Server();
+
+            server.ListenConnections();
+
+            server.ProcessConnectedClients();
+
+            Console.ReadLine();
         }
     }
 }

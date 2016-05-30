@@ -53,6 +53,7 @@
     <Compile Include="CommandsRelated\Resolvers\ServerCommandsResolver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -68,6 +69,10 @@
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{B86E792A-CE15-4F3E-914A-710442B5C5A9}</Project>
       <Name>Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utils\Utils.csproj">
+      <Project>{9EBF9258-B3C9-4FB9-9A01-DFB0CBECE33B}</Project>
+      <Name>Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

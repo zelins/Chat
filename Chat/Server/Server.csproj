@@ -48,6 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandsRelated\Handlers\ServerConnectCommandHandler.cs" />
+    <Compile Include="CommandsRelated\Handlers\ServerMessageCommandHandler.cs" />
+    <Compile Include="CommandsRelated\Resolvers\ServerCommandsResolver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -57,7 +60,16 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Commands\Commands.csproj">
+      <Project>{40CFE9DB-A81A-4571-ACC4-AFE29DEFA703}</Project>
+      <Name>Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Entities\Entities.csproj">
+      <Project>{B86E792A-CE15-4F3E-914A-710442B5C5A9}</Project>
+      <Name>Entities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

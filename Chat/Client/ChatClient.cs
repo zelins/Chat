@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Commands;
 using Commands.Abstracts;
 using Entities;
@@ -24,34 +26,34 @@ namespace Client
                 Id = Guid.NewGuid(),
                 Nickname = name
             };
-            IChatCommand command = new ConnectCommand()
-            {
-                User = User,
-                Time = DateTime.Now
-            };
+            IChatCommand command = new ConnectCommand
+            (
+                User,
+                DateTime.Now,
+                true
+            );
 
             this.commandsQueue = this.commandsQueue.Enqueue(command);
 
-            ProcessCommands();
+            HandleCommands();
         }
 
         public void EnqueueMessage(string message)
         {
             var messageCommand = new MessageCommand
-            {
-                Message = new Message
+            (
+                new Message
                 {
                     Author = User,
                     Id = Guid.Empty,
                     Content = message
                 },
-                Time = DateTime.Now
-            };
-
-            commandsQueue = commandsQueue.Enqueue(messageCommand);
+                DateTime.Now
+            );
+            this.commandsQueue = this.commandsQueue.Enqueue(messageCommand);
         }
 
-        private async void ProcessCommands()
+        private async void HandleCommands()
         {
             while (true)
             {
@@ -60,16 +62,24 @@ namespace Client
                 {
                     this.commandsQueue = this.commandsQueue.Dequeue(out command);
                 }
-                var stream = this.client.GetStream();
 
-                if (command != null)
+                try
                 {
-                    await stream.WriteCommandAsync(command);
+                    var stream = this.client.GetStream();
+
+                    if (command != null)
+                    {
+                        await stream.WriteCommandAsync(command);
+                    }
+
+                    if (stream.DataAvailable)
+                    {
+                        var c = await stream.ReadCommandAsync();
+                    }
                 }
-
-                if (stream.DataAvailable)
+                catch
                 {
-                    var c = await stream.ReadCommandAsync();
+                    break;
                 }
             }
         }

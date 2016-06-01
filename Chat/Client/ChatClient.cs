@@ -12,7 +12,7 @@ namespace Client
 {
     public class ChatClient : IDisposable
     {
-        private readonly TcpClient client = new TcpClient();
+        private TcpClient client = new TcpClient();
 
         private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
 
@@ -84,9 +84,11 @@ namespace Client
             }
         }
 
+        /// <summary>
+        /// Will be implemented by Fody weaving
+        /// </summary>
         public void Dispose()
         {
-            this.client?.Dispose();
         }
     }
 }

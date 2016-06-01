@@ -18,7 +18,9 @@ namespace Server
 
         private readonly TcpListener listener;
 
-        private ImmutableList<TcpClient> clients;
+        private readonly object syncObject;
+
+        private ImmutableList<Client> clients;
 
         private ImmutableQueue<IChatCommand> commandsQueue;
 
@@ -26,67 +28,100 @@ namespace Server
         {
             this.resolver = new ServerCommandsResolver();
             this.listener = TcpListener.Create(1234);
-            this.clients = ImmutableList<TcpClient>.Empty;
+            this.syncObject = new object();
+            this.clients = ImmutableList<Client>.Empty;
             this.commandsQueue = ImmutableQueue<IChatCommand>.Empty;
         }
 
-        public async void ListenConnections()
+        public async Task StartListen()
         {
             this.listener.Start();
             while (true)
             {
                 var client = await this.listener.AcceptTcpClientAsync();
 
-                this.clients = this.clients.Add(client);
+                var newClient = await HandleConnection(client);
+
+                HandleClient(newClient);
             }
         }
 
-        public async void ProcessConnectedClients()
+        private async Task<Client> HandleConnection(TcpClient tcpClient)
+        {
+            var stream = tcpClient.GetStream();
+
+            var connectCommand = await stream.ReadCommandAsync() as ConnectCommand;
+
+            var user = connectCommand.User;
+
+            var client = new Client(user, tcpClient);
+
+            this.clients = this.clients.Add(client);
+
+            EnqueueCommand(connectCommand);
+
+            return client;
+        }
+
+        private async Task HandleClient(Client client)
         {
             while (true)
             {
-                IChatCommand command = null;
-                if (!this.commandsQueue.IsEmpty)
+                var tcpClient = client.TcpClient;
+
+                if (tcpClient.Connected)
                 {
-                    this.commandsQueue = this.commandsQueue.Dequeue(out command);
+                    IChatCommand command = null;
+                    if (!client.CommandsQueue.IsEmpty)
+                    {
+                        client.CommandsQueue = client.CommandsQueue.Dequeue(out command);
+                    }
+                    try
+                    {
+                        var stream = client.Stream;
+
+                        if (stream.DataAvailable)
+                        {
+                            EnqueueCommand(await stream.ReadCommandAsync());
+                        }
+
+                        if (command != null)
+                        {
+                            await stream.WriteCommandAsync(command);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
                 }
-                command?.Execute(this.resolver);
-
-                for (int i = 0; i < this.clients.Count; i++)
+                else
                 {
-                    var stream = this.clients[i].GetStream();
-
-                    if (stream.DataAvailable)
-                    {
-                        this.commandsQueue = this.commandsQueue.Enqueue(await stream.ReadCommandAsync());
-                    }
-
-                    if (command != null)
-                    {
-                        await stream.WriteCommandAsync(command);
-                    }
+                    break;
                 }
             }
+
+            this.clients = this.clients.Remove(client);
+            var disconnectCommand = new ConnectCommand
+            (
+                client.User,
+                DateTime.Now,
+                false
+            );
+            EnqueueCommand(disconnectCommand);
         }
 
-        private async Task<IChatCommand> ReceiveDataAsync(TcpClient client)
+        private void EnqueueCommand(IChatCommand command)
         {
-            var stream = client.GetStream();
-            byte[] bytes = await stream.ReadBytesAsync(4);
-            int bytesToRead = BitConverter.ToInt32(bytes, 0);
-            bytes = await stream.ReadBytesAsync(bytesToRead);
-            return (IChatCommand)bytes.DeserializeToObject();
-        }
-
-        private async Task<byte[]> ReadFromStreamAsync(Stream stream, int bytes)
-        {
-            var buffer = new byte[bytes];
-            var readpos = 0;
-            while (readpos < bytes)
+            lock (this.syncObject)
             {
-                readpos += await stream.ReadAsync(buffer, readpos, bytes - readpos);
+                command.Execute(this.resolver);
             }
-            return buffer;
+
+            foreach (var user in this.clients)
+            {
+                user.CommandsQueue = user.CommandsQueue.Enqueue(command);
+            }
         }
     }
 }

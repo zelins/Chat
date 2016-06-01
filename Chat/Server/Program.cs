@@ -14,9 +14,7 @@ namespace Server
 
             var server = new Server();
 
-            server.ListenConnections();
-
-            server.ProcessConnectedClients();
+            server.StartListen();
 
             Console.ReadLine();
         }

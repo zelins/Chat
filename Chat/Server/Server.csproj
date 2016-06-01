@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client.cs" />
     <Compile Include="CommandsRelated\Handlers\ServerConnectCommandHandler.cs" />
     <Compile Include="CommandsRelated\Handlers\ServerMessageCommandHandler.cs" />
     <Compile Include="CommandsRelated\Resolvers\ServerCommandsResolver.cs" />

@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Commands;
+using Commands.Abstracts;
+using Server.CommandsRelated.Resolvers;
+using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Commands;
-using Commands.Abstracts;
-using Entities;
-using Server.CommandsRelated.Resolvers;
 using Utils;
 
 namespace Server
 {
     public class Server
     {
+        #region Fields
+
         private readonly IChatCommandsResolver resolver;
 
         private readonly TcpListener listener;
@@ -24,6 +24,10 @@ namespace Server
 
         private ImmutableQueue<IChatCommand> commandsQueue;
 
+        #endregion Fields
+
+        #region Constructor
+
         public Server()
         {
             this.resolver = new ServerCommandsResolver();
@@ -32,6 +36,10 @@ namespace Server
             this.clients = ImmutableList<Client>.Empty;
             this.commandsQueue = ImmutableQueue<IChatCommand>.Empty;
         }
+
+        #endregion Constructor
+
+        #region Methods
 
         public async Task StartListen()
         {
@@ -103,11 +111,11 @@ namespace Server
 
             this.clients = this.clients.Remove(client);
             var disconnectCommand = new ConnectCommand
-            (
+                (
                 client.User,
                 DateTime.Now,
                 false
-            );
+                );
             EnqueueCommand(disconnectCommand);
         }
 
@@ -123,5 +131,7 @@ namespace Server
                 user.CommandsQueue = user.CommandsQueue.Enqueue(command);
             }
         }
+
+        #endregion Methods
     }
 }

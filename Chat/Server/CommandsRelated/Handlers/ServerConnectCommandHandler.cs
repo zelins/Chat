@@ -10,7 +10,7 @@ namespace Server.CommandsRelated.Handlers
 {
     internal class ServerConnectCommandHandler : IChatCommandHandler
     {
-        public void Execute(IChatCommand command)
+        public void Execute(IChatCommand command, object parameter = null)
         {
             var connectCommand = command as ConnectCommand;
 

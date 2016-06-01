@@ -10,7 +10,7 @@ namespace Server.CommandsRelated.Handlers
 {
     internal class ServerMessageCommandHandler : IChatCommandHandler
     {
-        public void Execute(IChatCommand command)
+        public void Execute(IChatCommand command, object parameter = null)
         {
             var messageCommand = command as MessageCommand;
 

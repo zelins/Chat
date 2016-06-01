@@ -7,7 +7,13 @@ namespace Commands
     [Serializable]
     public class MessageCommand : IChatCommand
     {
-        public Message Message { get; set; }
-        public DateTime Time { get; set; }
+        public MessageCommand(Message message, DateTime time)
+        {
+            Message = message;
+            Time = time;
+        }
+
+        public Message Message { get; }
+        public DateTime Time { get; }
     }
 }

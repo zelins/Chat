@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Commands;
 using Commands.Abstracts;
 using Server.CommandsRelated.Handlers;
 
 namespace Server.CommandsRelated.Resolvers
 {
-    class ServerCommandsResolver : IChatCommandsResolver
+    internal class ServerCommandsResolver : IChatCommandsResolver
     {
-        private Dictionary<Type, IChatCommandHandler> handlersDictionary;
+        private readonly Dictionary<Type, IChatCommandHandler> handlersDictionary;
 
         public ServerCommandsResolver()
         {
@@ -21,6 +18,7 @@ namespace Server.CommandsRelated.Resolvers
                 {typeof(MessageCommand), new ServerMessageCommandHandler()}
             };
         }
+
         public IChatCommandHandler Resolve(IChatCommand command)
         {
             return this.handlersDictionary[command.GetType()];

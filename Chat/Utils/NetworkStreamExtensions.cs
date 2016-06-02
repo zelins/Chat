@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using Commands.Abstracts;
 
@@ -13,10 +9,10 @@ namespace Utils
     {
         public static async Task<IChatCommand> ReadCommandAsync(this NetworkStream stream)
         {
-            byte[] bytes = await stream.ReadBytesAsync(4);
-            int bytesToRead = BitConverter.ToInt32(bytes, 0);
+            var bytes = await stream.ReadBytesAsync(4);
+            var bytesToRead = BitConverter.ToInt32(bytes, 0);
             bytes = await stream.ReadBytesAsync(bytesToRead);
-            return (IChatCommand)bytes.DeserializeToObject();
+            return (IChatCommand) bytes.DeserializeToObject();
         }
 
         public static async Task WriteCommandAsync(this NetworkStream stream, IChatCommand command)

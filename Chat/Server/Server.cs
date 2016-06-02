@@ -1,17 +1,29 @@
-﻿using Commands;
-using Commands.Abstracts;
-using Server.CommandsRelated.Resolvers;
-using System;
+﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Commands;
+using Commands.Abstracts;
+using Server.CommandsRelated.Resolvers;
 using Utils;
 
 namespace Server
 {
     public class Server
     {
+        #region Constructor
+
+        public Server()
+        {
+            this.resolver = new ServerCommandsResolver();
+            this.listener = TcpListener.Create(1234);
+            this.syncObject = new object();
+            this.clients = ImmutableList<Client>.Empty;
+            this.commandsQueue = ImmutableQueue<IChatCommand>.Empty;
+        }
+
+        #endregion Constructor
+
         #region Fields
 
         private readonly IChatCommandsResolver resolver;
@@ -25,19 +37,6 @@ namespace Server
         private ImmutableQueue<IChatCommand> commandsQueue;
 
         #endregion Fields
-
-        #region Constructor
-
-        public Server()
-        {
-            this.resolver = new ServerCommandsResolver();
-            this.listener = TcpListener.Create(1234);
-            this.syncObject = new object();
-            this.clients = ImmutableList<Client>.Empty;
-            this.commandsQueue = ImmutableQueue<IChatCommand>.Empty;
-        }
-
-        #endregion Constructor
 
         #region Methods
 

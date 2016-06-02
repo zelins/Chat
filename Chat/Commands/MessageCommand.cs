@@ -1,6 +1,6 @@
-﻿using Commands.Abstracts;
+﻿using System;
+using Commands.Abstracts;
 using Entities;
-using System;
 
 namespace Commands
 {

@@ -1,30 +1,38 @@
-﻿using Commands;
+﻿using System;
+using System.Collections.Immutable;
+using System.Net.Sockets;
+using Commands;
 using Commands.Abstracts;
 using Entities;
 using Microsoft.Practices.Prism.Mvvm;
-using System;
-using System.Collections.Immutable;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using Utils;
 
 namespace Client
 {
     public class ChatClient : BindableBase, IDisposable
     {
-        #region Fields
-
-        private TcpClient client = new TcpClient();
-
-        private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
-
-        #endregion Fields
-
         #region Properties
 
         public User User { get; private set; }
 
         #endregion Properties
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            this.client.Dispose();
+        }
+
+        #endregion IDisposable implementation
+
+        #region Fields
+
+        private readonly TcpClient client = new TcpClient();
+
+        private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
+
+        #endregion Fields
 
         #region Methods
 
@@ -95,16 +103,5 @@ namespace Client
         }
 
         #endregion Methods
-
-        #region IDisposable implementation
-
-        /// <summary>
-        /// Will be implemented by Fody weaving
-        /// </summary>
-        public void Dispose()
-        {
-        }
-
-        #endregion IDisposable implementation
     }
 }

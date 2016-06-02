@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Client.Messages;
 using Utils;
 
 namespace Client
@@ -45,7 +46,7 @@ namespace Client
 
         public string MessageText { get; set; }
 
-        public ObservableCollection<string> Messages { get; set; }
+        public ObservableCollection<ChatMessage> Messages { get; set; }
 
         public ICommand SendMessageCommand => this.sendMessageCommand;
 
@@ -166,7 +167,7 @@ namespace Client
             LoginWindowEnabled = true;
             NickName = string.Empty;
             MessageText = string.Empty;
-            Messages = new ObservableCollection<string>();
+            Messages = new ObservableCollection<ChatMessage>();
         }
 
         #endregion Constructor
@@ -175,7 +176,7 @@ namespace Client
 
         public void Dispose()
         {
-            this.client.Dispose();
+            this.client.Close();
         }
 
         #endregion IDisposable implementation

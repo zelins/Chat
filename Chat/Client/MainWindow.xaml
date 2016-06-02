@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
+        xmlns:templateSelector="clr-namespace:Client.TemplateSelector"
         mc:Ignorable="d"
         Title="Chat client" Height="350" Width="525" ResizeMode="NoResize"
         DataContext="{Binding Client, RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <templateSelector:MessagesTemplateSelector x:Key="MessagesTemplateSelector"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -16,7 +18,23 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
-        <ListView Grid.Row="0" ItemsSource="{Binding Messages}" Background="BlanchedAlmond" Margin="5, 5, 5, 0" />
+        <ListView Grid.Row="0" ItemsSource="{Binding Messages}"
+                  Margin="5, 5, 5, 0" ItemTemplateSelector="{StaticResource MessagesTemplateSelector}">
+            <ListView.Resources>
+                <DataTemplate x:Key="ConnectDataTemplate">
+                    <TextBlock Foreground="Green" FontSize="19" Text="{Binding NickName, StringFormat=User \{0\} just connected to chat}"/>
+                </DataTemplate>
+                <DataTemplate x:Key="DisconnectDataTemplate">
+                    <TextBlock Foreground="Red" FontSize="19" Text="{Binding NickName, StringFormat=User \{0\} disconneted from the chat}"/>
+                </DataTemplate>
+                <DataTemplate x:Key="MessageDataTemplate">
+                    <StackPanel>
+                        <TextBlock Text="{Binding NickName, StringFormat=\{0\}:}" FontSize="20" Foreground="Blue"/>
+                        <TextBlock Text="{Binding Content}" FontSize="18" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.Resources>
+        </ListView>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="8.5*" />

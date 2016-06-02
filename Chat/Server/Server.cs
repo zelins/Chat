@@ -72,37 +72,27 @@ namespace Server
 
         private async Task HandleClient(Client client)
         {
+            var tcpClient = client.TcpClient;
+            var stream = client.Stream;
             while (true)
             {
-                var tcpClient = client.TcpClient;
-
-                if (tcpClient.Connected)
+                IChatCommand command = null;
+                if (!client.CommandsQueue.IsEmpty)
                 {
-                    IChatCommand command = null;
-                    if (!client.CommandsQueue.IsEmpty)
+                    client.CommandsQueue = client.CommandsQueue.Dequeue(out command);
+                }
+                try
+                {
+                    if (stream.DataAvailable)
                     {
-                        client.CommandsQueue = client.CommandsQueue.Dequeue(out command);
+                        EnqueueCommand(await stream.ReadCommandAsync());
                     }
-                    try
+                    if (command != null)
                     {
-                        var stream = client.Stream;
-
-                        if (stream.DataAvailable)
-                        {
-                            EnqueueCommand(await stream.ReadCommandAsync());
-                        }
-
-                        if (command != null)
-                        {
-                            await stream.WriteCommandAsync(command);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        break;
+                        await stream.WriteCommandAsync(command);
                     }
                 }
-                else
+                catch (Exception)
                 {
                     break;
                 }

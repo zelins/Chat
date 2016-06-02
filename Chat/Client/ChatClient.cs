@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Net.Sockets;
-using Commands;
+﻿using Commands;
 using Commands.Abstracts;
 using Entities;
-using Microsoft.Practices.Prism.Mvvm;
+using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using Prism.Commands;
+using Prism.Mvvm;
 using Utils;
 
 namespace Client
@@ -15,7 +20,19 @@ namespace Client
 
         public User User { get; private set; }
 
+        public string NickName { get; set; }
+
+        public bool LoginWindowEnabled { get; set; }
+
         #endregion Properties
+
+        #region Commands
+
+        private DelegateCommand loginCommand;
+
+        public ICommand LoginCommand => this.loginCommand;
+
+        #endregion Commands
 
         #region IDisposable implementation
 
@@ -34,9 +51,29 @@ namespace Client
 
         #endregion Fields
 
+        #region Constructor
+
+        public ChatClient()
+        {
+            this.loginCommand = new DelegateCommand(Login, CanLogin)
+                .ObservesProperty(() => NickName);
+            LoginWindowEnabled = true;
+        }
+
+        #endregion Constructor
+
         #region Methods
 
-        public async void ConnectToServer(string name)
+        private bool CanLogin() => NickName != null && NickName.Length > 1;
+
+        private async void Login()
+        {
+            await Login(NickName);
+
+            LoginWindowEnabled = false;
+        }
+
+        public async Task Login(string name)
         {
             await this.client.ConnectAsync("127.0.0.1", 1234);
             User = new User
@@ -53,7 +90,11 @@ namespace Client
 
             this.commandsQueue = this.commandsQueue.Enqueue(command);
 
-            HandleCommands();
+            Thread thread = new Thread(HandleCommands)
+            {
+                IsBackground = true
+            };
+            thread.Start();
         }
 
         private async void HandleCommands()

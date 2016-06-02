@@ -12,7 +12,7 @@ namespace Client
 
             var name = Console.ReadLine();
 
-            client.ConnectToServer(name);
+            client.Login(name);
 
             while (true)
             {

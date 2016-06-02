@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Chat client" Height="350" Width="525" ResizeMode="NoResize">
+        Title="Chat client" Height="350" Width="525" ResizeMode="NoResize"
+        DataContext="{Binding Client, RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="4*" />
@@ -22,7 +26,8 @@
             <Button Content="Send" Grid.Column="1" Margin="0, 5, 5, 5" />
         </Grid>
         <Grid Grid.Row="0" Grid.RowSpan="2" Background="White" HorizontalAlignment="Stretch"
-              VerticalAlignment="Stretch" Height="Auto">
+              VerticalAlignment="Stretch" Height="Auto"
+              Visibility="{Binding LoginWindowEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel Margin="140, 100">
                 <Label Content="Welcome to chat!" HorizontalContentAlignment="Center" FontSize="22" />
                 <Label Content="Please enter your name" HorizontalContentAlignment="Center" FontSize="18" />
@@ -31,8 +36,8 @@
                         <ColumnDefinition Width="4*" />
                         <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Margin="5" />
-                    <Button Grid.Column="1" Margin="5">OK</Button>
+                    <TextBox Text="{Binding NickName, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+                    <Button Command="{Binding LoginCommand}" Grid.Column="1" Margin="5">OK</Button>
                 </Grid>
             </StackPanel>
         </Grid>

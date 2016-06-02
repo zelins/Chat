@@ -1,15 +1,18 @@
-﻿using Commands;
+﻿using Client.CommandsRelated.Resolvers;
+using Commands;
 using Commands.Abstracts;
 using Entities;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Utils;
 
 namespace Client
@@ -18,11 +21,15 @@ namespace Client
     {
         #region Fields
 
-        private readonly TcpClient client = new TcpClient();
+        private readonly TcpClient client;
 
         private readonly DelegateCommand loginCommand;
 
         private readonly DelegateCommand sendMessageCommand;
+
+        private readonly ClientCommandsResolver resolver;
+
+        private readonly Dispatcher dispatcher;
 
         private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
 
@@ -37,6 +44,8 @@ namespace Client
         public bool LoginWindowEnabled { get; set; }
 
         public string MessageText { get; set; }
+
+        public ObservableCollection<string> Messages { get; set; }
 
         public ICommand SendMessageCommand => this.sendMessageCommand;
 
@@ -112,7 +121,11 @@ namespace Client
 
                     if (stream.DataAvailable)
                     {
-                        var c = await stream.ReadCommandAsync();
+                        var retrievedCommand = await stream.ReadCommandAsync();
+                        this.dispatcher.Invoke(() =>
+                        {
+                            retrievedCommand.Execute(this.resolver, Messages);
+                        });
                     }
                 }
                 catch
@@ -147,9 +160,13 @@ namespace Client
                 .ObservesProperty(() => NickName);
             this.sendMessageCommand = new DelegateCommand(SendMessage, CanSendMessage)
                 .ObservesProperty(() => MessageText);
+            this.client = new TcpClient();
+            this.resolver = new ClientCommandsResolver();
+            this.dispatcher = Dispatcher.CurrentDispatcher;
             LoginWindowEnabled = true;
             NickName = string.Empty;
             MessageText = string.Empty;
+            Messages = new ObservableCollection<string>();
         }
 
         #endregion Constructor

@@ -1,21 +1,33 @@
 ﻿using Commands;
 using Commands.Abstracts;
 using Entities;
+using Prism.Commands;
+using Prism.Mvvm;
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Prism.Commands;
-using Prism.Mvvm;
 using Utils;
 
 namespace Client
 {
     public class ChatClient : BindableBase, IDisposable
     {
+        #region Fields
+
+        private readonly TcpClient client = new TcpClient();
+
+        private readonly DelegateCommand loginCommand;
+
+        private readonly DelegateCommand sendMessageCommand;
+
+        private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
+
+        #endregion Fields
+
         #region Properties
 
         public User User { get; private set; }
@@ -24,47 +36,17 @@ namespace Client
 
         public bool LoginWindowEnabled { get; set; }
 
+        public string MessageText { get; set; }
+
+        public ICommand SendMessageCommand => this.sendMessageCommand;
+
+        public ICommand LoginCommand => this.loginCommand;
+
         #endregion Properties
 
         #region Commands
 
-        private DelegateCommand loginCommand;
-
-        public ICommand LoginCommand => this.loginCommand;
-
-        #endregion Commands
-
-        #region IDisposable implementation
-
-        public void Dispose()
-        {
-            this.client.Dispose();
-        }
-
-        #endregion IDisposable implementation
-
-        #region Fields
-
-        private readonly TcpClient client = new TcpClient();
-
-        private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
-
-        #endregion Fields
-
-        #region Constructor
-
-        public ChatClient()
-        {
-            this.loginCommand = new DelegateCommand(Login, CanLogin)
-                .ObservesProperty(() => NickName);
-            LoginWindowEnabled = true;
-        }
-
-        #endregion Constructor
-
-        #region Methods
-
-        private bool CanLogin() => NickName != null && NickName.Length > 1;
+        private bool CanLogin() => NickName.Length > 1;
 
         private async void Login()
         {
@@ -72,6 +54,18 @@ namespace Client
 
             LoginWindowEnabled = false;
         }
+
+        private bool CanSendMessage() => MessageText.Any();
+
+        private void SendMessage()
+        {
+            EnqueueMessage(MessageText);
+            MessageText = string.Empty;
+        }
+
+        #endregion Commands
+
+        #region Methods
 
         public async Task Login(string name)
         {
@@ -144,5 +138,29 @@ namespace Client
         }
 
         #endregion Methods
+
+        #region Constructor
+
+        public ChatClient()
+        {
+            this.loginCommand = new DelegateCommand(Login, CanLogin)
+                .ObservesProperty(() => NickName);
+            this.sendMessageCommand = new DelegateCommand(SendMessage, CanSendMessage)
+                .ObservesProperty(() => MessageText);
+            LoginWindowEnabled = true;
+            NickName = string.Empty;
+            MessageText = string.Empty;
+        }
+
+        #endregion Constructor
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            this.client.Dispose();
+        }
+
+        #endregion IDisposable implementation
     }
 }

@@ -100,11 +100,11 @@ namespace Server
 
             this.clients = this.clients.Remove(client);
             var disconnectCommand = new ConnectCommand
-                (
+            (
                 client.User,
                 DateTime.Now,
                 false
-                );
+            );
             EnqueueCommand(disconnectCommand);
         }
 

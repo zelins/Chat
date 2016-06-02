@@ -32,7 +32,7 @@ namespace Client
 
         private readonly Dispatcher dispatcher;
 
-        private ImmutableQueue<IChatCommand> commandsQueue = ImmutableQueue<IChatCommand>.Empty;
+        private ImmutableQueue<IChatCommand> commandsQueue;
 
         #endregion Fields
 
@@ -86,11 +86,11 @@ namespace Client
                 Nickname = name
             };
             IChatCommand command = new ConnectCommand
-                (
+            (
                 User,
                 DateTime.Now,
                 true
-                );
+            );
 
             this.commandsQueue = this.commandsQueue.Enqueue(command);
 
@@ -139,7 +139,7 @@ namespace Client
         public void EnqueueMessage(string message)
         {
             var messageCommand = new MessageCommand
-                (
+            (
                 new Message
                 {
                     Author = User,
@@ -147,7 +147,7 @@ namespace Client
                     Content = message
                 },
                 DateTime.Now
-                );
+            );
             this.commandsQueue = this.commandsQueue.Enqueue(messageCommand);
         }
 
@@ -164,6 +164,7 @@ namespace Client
             this.client = new TcpClient();
             this.resolver = new ClientCommandsResolver();
             this.dispatcher = Dispatcher.CurrentDispatcher;
+            this.commandsQueue = ImmutableQueue<IChatCommand>.Empty;
             LoginWindowEnabled = true;
             NickName = string.Empty;
             MessageText = string.Empty;

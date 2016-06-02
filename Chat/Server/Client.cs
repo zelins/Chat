@@ -7,12 +7,18 @@ namespace Server
 {
     public class Client
     {
+        #region Constructor
+
         public Client(User user, TcpClient client)
         {
             TcpClient = client;
             CommandsQueue = ImmutableQueue<IChatCommand>.Empty;
             User = user;
         }
+
+        #endregion Constructor
+
+        #region Properties
 
         public ImmutableQueue<IChatCommand> CommandsQueue { get; set; }
 
@@ -21,5 +27,7 @@ namespace Server
         public User User { get; }
 
         public NetworkStream Stream => TcpClient.GetStream();
+
+        #endregion Properties
     }
 }

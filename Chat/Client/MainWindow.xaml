@@ -30,7 +30,7 @@
                 <DataTemplate x:Key="MessageDataTemplate">
                     <StackPanel>
                         <TextBlock Text="{Binding NickName, StringFormat=\{0\}:}" FontSize="20" Foreground="Blue"/>
-                        <TextBlock Text="{Binding Content}" FontSize="18" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Content2}" FontSize="18" TextWrapping="Wrap"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.Resources>
